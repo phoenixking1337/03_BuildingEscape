@@ -1,6 +1,6 @@
-**/Build
-**/Binaries
-**/DerivedDataCache
-**/Intermediate
-**/Saved
-**/_BuiltData.uasset
+[Bb]uild/
+[Br]inaries/
+[Dd]erivedDataCache/
+[Ii]ntermediate/
+[Ss]aved/
+_BuiltData.uasset
