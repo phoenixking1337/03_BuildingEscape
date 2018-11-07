@@ -1,2 +1,18 @@
-*.db
-Intermediate/
+##########################
+# Unreal Generated Files #
+##########################
+**/Intermediate
+**/Build
+**/Binaries
+**/DerivedDataCache
+**/Saved
+BuildingEscape/Content/StarterContent/Textures
+BuildingEscape/Content/StarterContent/HDRI
+
+######################
+# VS Generated Files #
+######################
+*.VC.db
+*.suo
+*.VC.opendb
+*.sln
