@@ -1,6 +1,2 @@
-[Bb]uild/
-[Br]inaries/
-[Dd]erivedDataCache/
-[Ii]ntermediate/
-[Ss]aved/
-_BuiltData.uasset
+*.db
+Intermediate/
