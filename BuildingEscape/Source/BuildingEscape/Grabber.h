@@ -4,19 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Engine/TriggerVolume.h"
-#include "OpenDoor.generated.h"
-
+#include "Grabber.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
+class BUILDINGESCAPE_API UGrabber : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UOpenDoor();
+	UGrabber();
 
 protected:
 	// Called when the game starts
@@ -26,25 +24,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 private:
-	UPROPERTY(EditAnywhere)
-	float OpenAngle = -60.0f;
+	
+	float Reach = 100.0f; //Player grabbing reach
 
-	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
-
-	UPROPERTY(EditAnywhere)
-	float DoorCloseDelay = 0.5f;
-
-	float LastDoorOpenTime;
-
-	//UPROPERTY(EditAnywhere)
-	AActor* ActorThatOpens;	//Pawn inherits from actor
-	AActor* Owner; //The owning door
-
-	void OpenDoor();
-
-	void CloseDoor();
+		
 	
 };
