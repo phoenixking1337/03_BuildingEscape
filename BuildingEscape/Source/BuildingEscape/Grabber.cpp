@@ -27,8 +27,35 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Grabber initialised"));
-	
+	//UE_LOG(LogTemp, Warning, TEXT("Grabber initialised"));
+
+	///Look for attached Physics Handle
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle)
+	{
+		//Physics handle is found
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s is missing PhysicsHandleComponent"), *GetOwner()->GetName());
+	}
+
+	///Look for attached input component (only appears at runtime)
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent)
+	{
+		//Input component is found
+		UE_LOG(LogTemp, Warning, TEXT("Input Component for %s found"), *GetOwner()->GetName());
+		///Bing the input grab axis
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+
+		///Bing the input release axis
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s is missing Input Component"), *GetOwner()->GetName());
+	}
 }
 
 
@@ -41,7 +68,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
-	UE_LOG(LogTemp, Warning, TEXT("Player Location: %s\nPlayer Rotation:%s\n"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Player Location: %s\nPlayer Rotation:%s\n"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
 
 	///Draw a red trace in the world
 	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * Reach);
@@ -71,4 +98,15 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	}
 	
 }
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed"));
+}
+
+void UGrabber::Release()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grab Released"));
+}
+
 
