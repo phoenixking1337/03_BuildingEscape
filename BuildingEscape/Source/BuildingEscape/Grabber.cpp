@@ -27,11 +27,8 @@ UGrabber::UGrabber()
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-
 	FindPhysicsHandleComponent();
-
 	SetupInputComponent();
-	
 }
 
 
@@ -40,28 +37,17 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	/// Get player view point this tick
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation,
-		OUT PlayerViewPointRotation);
-	//UE_LOG(LogTemp, Warning, TEXT("Player Location: %s\nPlayer Rotation:%s\n"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
-
-	/////Draw a red trace in the world
-	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * Reach);
-
 	//	if the physics handle is attached
 	if (PhysicsHandle->GrabbedComponent)
 	{
-		//	move the object that we are holding
-		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+		//	move the object that we are holding to end of our line trace based on player orientation
+		PhysicsHandle->SetTargetLocation(GetLineTraceEnd());
 	}
-	
 }
 
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab Pressed"));
+	//UE_LOG(LogTemp, Warning, TEXT("Grab Pressed"));
 
 	///	LINE TRACE and reach any actors with physics body collision channel set
 	auto HitResult = GetFirstPhysicsBodyInReach();
@@ -74,7 +60,7 @@ void UGrabber::Grab()
 		// attach physics handle
 		PhysicsHandle->GrabComponent(
 			ComponentToGrab,
-			NAME_None,
+			NAME_None,	//no bones needed
 			ComponentToGrab->GetOwner()->GetActorLocation(),
 			true // constrainRotation
 		);
@@ -92,7 +78,7 @@ void UGrabber::Release()
 void UGrabber::FindPhysicsHandleComponent()
 {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysicsHandle)
+	if (PhysicsHandle == nullptr)
 	{
 		//Physics handle is found
 	}
@@ -108,13 +94,8 @@ void UGrabber::SetupInputComponent()
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent)
 	{
-		//Input component is found
-		UE_LOG(LogTemp, Warning, TEXT("Input Component for %s found"), *GetOwner()->GetName());
-		///Bing the input grab axis
-		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
-
-		///Bing the input release axis
-		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);	//Bind the input grab axis
+		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);	//Bind the input release axis
 	}
 	else
 	{
@@ -124,15 +105,15 @@ void UGrabber::SetupInputComponent()
 
 const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 {
-	/// Get player view point this tick
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation,
-		OUT PlayerViewPointRotation);
-	//UE_LOG(LogTemp, Warning, TEXT("Player Location: %s\nPlayer Rotation:%s\n"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
-	
-	/////Draw a red trace in the world
-	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * Reach);
+	///// Get player view point this tick
+	//FVector PlayerViewPointLocation;
+	//FRotator PlayerViewPointRotation;
+	//GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation,
+	//	OUT PlayerViewPointRotation);
+	////UE_LOG(LogTemp, Warning, TEXT("Player Location: %s\nPlayer Rotation:%s\n"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
+	//
+	///////Draw a red trace in the world
+	//FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * Reach);
 	//DrawDebugLine(GetWorld(), 
 	//	PlayerViewPointLocation, 
 	//	LineTraceEnd, 
@@ -145,22 +126,53 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 	/// Ray-cast out to reach distance
 	FHitResult LineTraceHit;
 	GetWorld()->LineTraceSingleByObjectType(OUT LineTraceHit,
-		PlayerViewPointLocation, LineTraceEnd,
+		GetLineTraceStart(), 
+		GetLineTraceEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParameters
 	);
 
-	///See what we hit
-	//FString ObjectName = LineTraceHit.GetActor()->GetName();
-	AActor* ActorHit = LineTraceHit.GetActor();
-	if (ActorHit)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Actor Hit With Ray-cast: %s\n"), *ActorHit->GetName());
-	}
+	/////See what we hit
+	////FString ObjectName = LineTraceHit.GetActor()->GetName();
+	//AActor* ActorHit = LineTraceHit.GetActor();
+	//if (ActorHit)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Actor Hit With Ray-cast: %s\n"), *ActorHit->GetName());
+	//}
 	
 	//return FHitResult();
 
 	return LineTraceHit;
 }
+
+const FVector UGrabber::GetLineTraceStart()
+{
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation);
+	//UE_LOG(LogTemp, Warning, TEXT("Player Location: %s\nPlayer Rotation:%s\n"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
+
+	///Use Player Location and Orientation to get line trace end
+	FVector LineTraceStart = PlayerViewPointLocation;
+
+	return LineTraceStart;
+}
+
+const FVector UGrabber::GetLineTraceEnd()
+{
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation,
+		OUT PlayerViewPointRotation);
+	//UE_LOG(LogTemp, Warning, TEXT("Player Location: %s\nPlayer Rotation:%s\n"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString());
+
+	///Use Player Location and Orientation to get line trace end
+	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector() * Reach);
+
+	return LineTraceEnd;
+}
+
+
 
 
