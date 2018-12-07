@@ -40,11 +40,14 @@ private:
 	float LastDoorOpenTime;
 
 	//UPROPERTY(EditAnywhere)
-	AActor* ActorThatOpens;	//Pawn inherits from actor
+	//AActor* ActorThatOpens;	//Pawn inherits from actor
 	AActor* Owner; //The owning door
 
 	void OpenDoor();
 
 	void CloseDoor();
+
+	//returns total mass in kg
+	float GetTotalMassOfActorsOnPlate();
 	
 };

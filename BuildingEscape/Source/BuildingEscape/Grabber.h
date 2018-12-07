@@ -54,5 +54,5 @@ private:
 
 	//Return player view point Line Trace End
 	const FVector GetLineTraceEnd();
-	
+
 };
