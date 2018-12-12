@@ -65,7 +65,10 @@ void UOpenDoor::OpenDoor()
 
 	//FRotator NewRotation = FRotator(0.0f, -60.0f, 0.0f); //Create a reactor
 
-	Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f)); //Set the door rotation
+	//Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f)); //Set the door rotation
+
+	//	Send signal to BP
+	OnOpenRequest.Broadcast();
 }
 
 void UOpenDoor::CloseDoor()
@@ -74,7 +77,10 @@ void UOpenDoor::CloseDoor()
 
 	//FRotator NewRotation = FRotator(0.0f, -60.0f, 0.0f); //Create a reactor
 
-	Owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f)); //Set the door rotation
+	//Owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f)); //Set the door rotation
+
+	//	Send signal to BP
+	OnCloseRequest.Broadcast();
 }
 
 ///returns total mass in kg
